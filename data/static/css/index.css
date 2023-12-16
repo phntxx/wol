@@ -1,0 +1,91 @@
+@font-face {
+  font-family: "Helvetica Neue";
+  font-style: normal;
+  font-weight: 700;
+  src: local("Helvetica Neue"),
+    url("/static/font/helvetica-neue-normal.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Helvetica 65 Medium";
+  font-style: normal;
+  font-weight: 700;
+  src: local("Helvetica 65 Medium"),
+    url("/static/font/helvetica-neue-heavy.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Helvetica 45 Light";
+  font-style: normal;
+  font-weight: 400;
+  src: local("Helvetica 45 Light"),
+    url("/static/font/helvetica-neue-light.woff") format("woff");
+}
+
+body {
+  font-family: "Helvetica 45 Light", sans-serif;
+  margin: auto;
+  width: 100%;
+  height: 100%;
+
+  display: grid;
+  place-items: center;
+}
+
+@media (min-width: 1366px) {
+  body {
+    max-width: 70%;
+  }
+}
+
+.container {
+  padding: 1rem;
+}
+
+.header {
+  text-align: center;
+}
+
+
+
+.devices, #form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#device {
+  width: 100%;
+  border: 1px solid black;
+  border-radius: 0.5rem;
+  margin: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.device-address {
+  font-style: italic;
+  margin: 0;
+}
+
+.device-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #e3e5dc;
+    background: #191f24;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  body {
+    color: #021627;
+    background: #f0eee5;
+  }
+}

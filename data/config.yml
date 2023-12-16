@@ -1,0 +1,6 @@
+devices:
+  - name: Desktop PC
+    mac: ff:ff:ff:ff:ff:ff
+  
+  - name: Server
+    mac: ff:ff:ff:ff:ff:ff
