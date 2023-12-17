@@ -69,6 +69,7 @@ fn router(frontend_path: &'static str, state: Arc<Mutex<Config>>) -> Router {
     let (chain, pipelines) = single_pipeline(pipeline);
 
     build_router(chain, pipelines, |route| {
+        route.get("/").to_file(frontend_path.clone().to_owned() + "/index.html");
         route.get("/*").to_dir(frontend_path);
         route.get("/api/data").to(get_data);
         route.put("/api/wake/:address").with_path_extractor::<RequestBody>().to(wake);
