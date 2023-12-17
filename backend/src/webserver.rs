@@ -11,47 +11,14 @@ use gotham::{
 
 use wakey::WolPacket;
 
-use handlebars::Handlebars;
-use std::{error::Error, sync::{Arc, Mutex}};
+use std::sync::{Arc, Mutex};
 use log::{info, warn};
 
 use crate::structure::{Config, RequestBody};
 
 #[derive(Clone, StateData)]
 struct WebState {
-    template: &'static str,
     state: Arc<Mutex<Config>>
-}
-
-fn generate_template(template: &str, state: Arc<Mutex<Config>>) -> Result<String, Box<dyn Error>> {
-    let mut handlebars = Handlebars::new();
-    let result = handlebars.register_template_file("template", template);
-
-    match result {
-        Ok(_msg) => info!("Template loaded successfully."),
-        Err(_msg) => warn!("Error loading template")
-    }
-
-    let s = state.lock().unwrap();
-    let rendered_template = handlebars.render("template", &*s)?;
-    
-    Ok(rendered_template)
-}
-
-fn response(state: State) -> (State, Response<Body>) {
-    let web_state = WebState::borrow_from(&state);
-    let template = generate_template(web_state.template, web_state.state.clone());
-
-    let response = match template {
-        Ok(rendered_template) => {
-            create_response(&state, StatusCode::OK, "text/html".parse().unwrap(), rendered_template)
-        },
-        Err(_msg) => {
-            create_empty_response(&state, StatusCode::INTERNAL_SERVER_ERROR)
-        }
-    };
-
-    (state, response)
 }
 
 fn wake(state: State) -> (State, Response<Body>) {
@@ -76,22 +43,40 @@ fn wake(state: State) -> (State, Response<Body>) {
     (state, response)
 }
 
-fn router(template: &'static str, static_path: &'static str, state: Arc<Mutex<Config>>) -> Router {
+fn get_data(state: State) -> (State, Response<Body>) {
 
-    let web_state = WebState { template: template, state: state};
+    let binding = WebState::borrow_from(&state).state.clone();
+    let data = binding.lock().unwrap();
+
+    let json_string = serde_json::to_string(&*data);
+    let response = match json_string {
+        Ok(value) => {
+            create_response(&state, StatusCode::OK, "application/json".parse().unwrap(), value)
+        },
+        Err(_msg) => {
+            create_empty_response(&state, StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    };
+
+    (state, response)
+}
+
+fn router(frontend_path: &'static str, state: Arc<Mutex<Config>>) -> Router {
+
+    let web_state = WebState { state: state };
     let middleware = StateMiddleware::new(web_state);
     let pipeline = single_middleware(middleware);
     let (chain, pipelines) = single_pipeline(pipeline);
 
     build_router(chain, pipelines, |route| {
-        route.get("/").to(response);
-        route.get("/static/*").to_dir(static_path);
-        route.put("/wake/:address").with_path_extractor::<RequestBody>().to(wake);
+        route.get("/*").to_dir(frontend_path);
+        route.get("/api/data").to(get_data);
+        route.put("/api/wake/:address").with_path_extractor::<RequestBody>().to(wake);
     })
 }
 
-pub fn run(address: &'static str, template: &'static str, static_path: &'static str, state: Arc<Mutex<Config>>) {
-    let result = gotham::start(address, router(template, static_path, state));
+pub fn run(address: &'static str, frontend_path: &'static str, state: Arc<Mutex<Config>>) {
+    let result = gotham::start(address, router(frontend_path, state));
 
     match result {
         Ok(_msg) => info!("Webserver started successfully"),
@@ -106,10 +91,9 @@ mod tests {
     use gotham::hyper::StatusCode;
 
     fn generate_test_server() -> TestServer {
-        let template_file = "./data/template.hbs";
-        let static_path = "./data/static";
+        let frontend_path = "../frontend/build";
         let state: Arc<Mutex<Config>> = Arc::new(Mutex::new(Config::new()));
-        let test_server = TestServer::new(router(template_file, static_path, state)).unwrap();
+        let test_server = TestServer::new(router(frontend_path, state)).unwrap();
 
         return test_server;
     }
@@ -148,35 +132,5 @@ mod tests {
             .unwrap();
 
         assert_eq!(response.status(), StatusCode::NOT_FOUND);
-    }
-
-    #[test]
-    fn get_template() {
-        let template_file = "./data/template.hbs";
-        let state: Arc<Mutex<Config>> = Arc::new(Mutex::new(Config::new()));
-
-        let template = generate_template(template_file, state);
-
-        let result =  match template {
-            Ok(_ok) => 0,
-            Err(_err) => 1
-        };
-
-        assert_eq!(result, 0);
-    }
-
-    #[test]
-    fn get_template_fail() {
-        let template_file = "./data/fail.hbs";
-        let state: Arc<Mutex<Config>> = Arc::new(Mutex::new(Config::new()));
-
-        let template = generate_template(template_file, state);
-
-        let result =  match template {
-            Ok(_ok) => 0,
-            Err(_err) => 1
-        };
-
-        assert_eq!(result, 1);
     }
 }

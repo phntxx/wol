@@ -1,9 +1,17 @@
 # Builder: Downloads dependencies, compiles the project,
 # passes on the executable
-FROM rust:alpine as build
+FROM node:latest as frontend-build
 
 WORKDIR /app
-COPY . .
+COPY frontend .
+
+RUN npm install
+RUN npm run build
+
+FROM rust:alpine as backend-build
+
+WORKDIR /app
+COPY backend .
 
 RUN apk add --no-cache musl-dev
 RUN cargo build --release
@@ -12,15 +20,12 @@ RUN cargo build --release
 FROM alpine:latest
 
 WORKDIR /app
-COPY --from=build --chmod=711 /app/target/release/links .
-COPY --chmod=711 entrypoint.sh .
-COPY data defaults
+COPY --from=backend-build --chmod=711 /app/target/release/wol .
+COPY --from=frontend-build --chmod=711 /app/build ./frontend
 
 ENV RUST_LOG="wol"
-ENV CONFIG_FILE="/app/data/config.yml"
-ENV TEMPLATE_FILE="/app/data/template.hbs"
-ENV STATIC_PATH="/app/data/static"
+ENV CONFIG_FILE="/app/config.yml"
+ENV FRONTEND_PATH="/app/frontend"
 ENV ADDRESS="0.0.0.0:3000"
 
-ENTRYPOINT ["./entrypoint.sh"]
 CMD ["./wol"]

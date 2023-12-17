@@ -51,7 +51,7 @@ mod tests {
 
     #[test]
     fn test_read() {
-        let config_file = "./data/config.yml";
+        let config_file = "../data/config.yml";
         let def_state = Config::new();
         let state: Arc<Mutex<Config>> = Arc::new(Mutex::new(Config::new()));
 
