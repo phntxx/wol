@@ -20,6 +20,8 @@ RUN cargo build --release
 FROM alpine:latest
 
 WORKDIR /app
+COPY config.yml defaults/config.yml
+COPY --chmod=711 entrypoint.sh .
 COPY --from=backend-build --chmod=711 /app/target/release/wol .
 COPY --from=frontend-build --chmod=711 /app/build ./frontend
 
@@ -28,4 +30,5 @@ ENV CONFIG_FILE="/app/config.yml"
 ENV FRONTEND_PATH="/app/frontend"
 ENV ADDRESS="0.0.0.0:3000"
 
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["./wol"]
