@@ -4,6 +4,8 @@
 
 ![wol screenshot][screenshot]
 
+`wol` (short for [Wake-on-LAN][wikipedia]) is a simple interface for sending magic packets, written in Rust and Svelte.
+
 # Installation
 
 ## Installation using Docker
@@ -115,3 +117,4 @@ The backend should now be accessible on port `3000`, with the frontend preview b
 [screenshot]: img/screenshot.png
 [license]: LICENSE
 [shield-license]: https://img.shields.io/github/license/phntxx/wol.svg
+[wikipedia]: https://en.wikipedia.org/wiki/Wake-on-LAN
