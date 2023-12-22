@@ -23,9 +23,10 @@ const handleClick = () => wakeUp(address, name)
 
     cursor: pointer;
     
-    border: 1px solid black;
+    border: 1px solid;
     border-radius: 5px;
     background: none;
+    color: inherit;
   }
 
   .item-name {

@@ -1,5 +1,11 @@
+import { dev } from "$app/environment"
+
+const getApiURL = () => {
+  return (dev) ? "http://localhost:3000/api" : "/api"
+}
+
 export const getData = async () => {
-  const request = await fetch("/api/data", {
+  const request = await fetch(`${getApiURL()}/data`, {
     method: "GET"
   });
 
@@ -8,7 +14,7 @@ export const getData = async () => {
 }
 
 export const putWake = async (address: string) => {
-  const request = await fetch(`/api/wake/${address}`, {
+  const request = await fetch(`${getApiURL()}/wake/${address}`, {
     method: "PUT"
   });
 

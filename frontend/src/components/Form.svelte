@@ -35,18 +35,27 @@
   }
 
   .address-input {
-    border: 1px solid black;
+    border: 1px solid;
     border-radius: 5px;
+    background: none;
+    color: inherit;
 
     font-size: 1.25rem;
+    padding: 0.25rem;
     font-family: monospace;
+  }
+
+  ::placeholder {
+    color: inherit;
   }
 
   .submit-button {
     width: 100%;
-    border: 1px solid black;
+    border: 1px solid;
     border-radius: 5px;
+    font-size: 1.25rem;
     background: none;
+    color: inherit;
 
     cursor: pointer;
   }
