@@ -26,10 +26,9 @@ services:
 
   wol:
     image: ghcr.io/phntxx/wol
+    network_mode: host
     environment:
       - CONFIG_FILE=<PATH-TO-CONFIG>
-    ports:
-      - 3000:3000/tcp
 
   ...
 ```
